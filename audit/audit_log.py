@@ -31,8 +31,5 @@ def get_audit_page(page=1, page_size=25):
         "total": total,
         "page": page,
         "page_size": page_size,
-        # BUG: offset is not included in the response.
-        # The frontend pagination component expects an 'offset' field
-        # to calculate the next page. Without it, clicking 'Next' fails
-        # with: "Cannot read property 'offset' of undefined"
+        "offset": start,
     }
