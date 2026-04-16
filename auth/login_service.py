@@ -12,7 +12,7 @@ def validate_email(email):
     """
     # BUG: This regex does not allow '+' characters in the local part.
     # Emails like jane+work@example.com will fail validation and cause a 500.
-    pattern = r"^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    pattern = r"^[a-zA-Z0-9_.+]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
     if not re.match(pattern, email):
         raise ValueError(f"Invalid email address: {email}")
