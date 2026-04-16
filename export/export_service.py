@@ -31,7 +31,8 @@ def export_dashboard_csv():
     writer.writeheader()
 
     for record in DASHBOARD_RECORDS:
-        # BUG: Missing filter — should skip records where is_deleted is True
+        if record["is_deleted"]:
+            continue
         writer.writerow({
             "id": record["id"],
             "customer": record["customer"],
