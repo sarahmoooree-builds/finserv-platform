@@ -22,16 +22,15 @@ def export_dashboard_csv():
     Export dashboard data to CSV format.
     Returns CSV content as a string.
 
-    BUG: This query does not filter out soft-deleted records.
-    Rows where is_deleted=True should be excluded from the export,
-    but they currently appear in the output.
+    Only active (non-deleted) records are included in the export.
     """
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=["id", "customer", "amount", "status"])
     writer.writeheader()
 
     for record in DASHBOARD_RECORDS:
-        # BUG: Missing filter — should skip records where is_deleted is True
+        if record["is_deleted"]:
+            continue
         writer.writerow({
             "id": record["id"],
             "customer": record["customer"],
