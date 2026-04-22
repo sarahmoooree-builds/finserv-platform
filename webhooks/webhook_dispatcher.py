@@ -6,15 +6,19 @@ import time
 
 
 MAX_RETRIES = 4
+BASE_RETRY_DELAY = 10
+RETRY_BACKOFF_FACTOR = 3
 
 
 def deliver_webhook(url, payload):
     """
     Attempt to deliver a webhook payload to the given URL.
-    Retries on failure up to MAX_RETRIES times.
-
-    BUG: The retry interval is hardcoded at 10 seconds instead of
-    using exponential backoff. Should use: 10s, 30s, 90s, 270s.
+    Retries on failure up to MAX_RETRIES times, waiting between
+    attempts using exponential backoff:
+    BASE_RETRY_DELAY * (RETRY_BACKOFF_FACTOR ** (attempt - 1)).
+    With the defaults this yields 10s, 30s, 90s, 270s; because the
+    final attempt is not followed by a sleep, only the first three
+    delays (10s, 30s, 90s) are actually used.
     """
     for attempt in range(1, MAX_RETRIES + 1):
         success = _send_request(url, payload)
@@ -23,8 +27,7 @@ def deliver_webhook(url, payload):
             return {"status": "delivered", "attempts": attempt}
 
         if attempt < MAX_RETRIES:
-            # BUG: Hardcoded 10-second interval — should be exponential backoff
-            retry_interval = 10  # Should be: 10 * (3 ** (attempt - 1))
+            retry_interval = BASE_RETRY_DELAY * (RETRY_BACKOFF_FACTOR ** (attempt - 1))
             time.sleep(retry_interval)
 
     return {"status": "failed", "attempts": MAX_RETRIES}
